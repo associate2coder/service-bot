@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ServiceBotApplication {
 
     public static void main(String[] args) {
-        System.out.println(System.getenv().get("JDBC_URL"));
         SpringApplication.run(ServiceBotApplication.class, args);
     }
 
