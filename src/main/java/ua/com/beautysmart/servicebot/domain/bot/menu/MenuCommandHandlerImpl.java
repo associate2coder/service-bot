@@ -6,9 +6,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ua.com.beautysmart.servicebot.domain.bot.events.MainMenuEvent;
-import ua.com.beautysmart.servicebot.domain.bot.events.ScanSheetInfoEvent;
-import ua.com.beautysmart.servicebot.domain.bot.events.ScanSheetTodayMenuEvent;
+import ua.com.beautysmart.servicebot.domain.bot.common.TgUtils;
+import ua.com.beautysmart.servicebot.domain.bot.events.*;
 import ua.com.beautysmart.servicebot.domain.services.AccessValidationService;
 
 @Service
@@ -23,14 +22,23 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
     @Override
     public void handle(Update update) {
 
-        // update is handled only when it has a message (i.e. we react on user message)
+        // if chatId is not in User database, access is not granted
+        accessValidationService.validateUserAccess(update);
+
+        // if message has a callback query, callback query is handled
+        if (update.hasCallbackQuery()) {
+            log.debug("Update has a callback query with call back data: " + update.getCallbackQuery().getData());
+            handleCallbackData(update);
+            return;
+        }
+
+
+        // if message does not have a callback query but has a message (e.g., /start or other command)
+        // such update with command is handled accordingly
         if (update.hasMessage()) {
 
+            log.debug("Update has a message with text: " + update.getMessage().getText());
             Message message = update.getMessage();
-            long chatId = message.getChatId();
-
-            // if chatId is not in User database, access is not granted
-            accessValidationService.validateUserAccess(update);
 
             // first it is checked whether message is a command.
             // Commands are handled with Command handler method below.
@@ -40,27 +48,30 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
                 return;
             }
 
-            // if message is not a command, it is checked whether the message has any callbackData
-            // CallbackData is checked with a CallbackData handler method below.
-            if (update.getCallbackQuery() != null) {
-                handleCallbackData(update);
+            long chatId = TgUtils.getChatIdFromUpdate(update);
+            Context context = contextHolder.getContext(chatId);
+            if ("AddSender".equals(context.getMenuType())) {
+                eventPublisher.publishEvent(new AddSenderMenuEvent(update));
                 return;
             }
+
         }
     }
 
     private void handleCommands(Update update) {
 
+        // switch is introduced since it is not expected that there will be lots of commands
+        // additional commands are under consideration
         switch (update.getMessage().getText()) {
             case "/start" -> eventPublisher.publishEvent(new MainMenuEvent(update));
         }
-
     }
     private void handleCallbackData(Update update) {
 
         String callbackData = update.getCallbackQuery().getData();
-        long chatId = update.getMessage().getChatId();
+        long chatId = TgUtils.getChatIdFromUpdate(update);
         Context context = updateContextWithCallbackData(callbackData, chatId);
+        log.debug("Context: " + context);
 
         switch (context.getMenuType()) {
             case "MainMenu" -> eventPublisher.publishEvent(new MainMenuEvent(update));
@@ -76,6 +87,7 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
             case "PaidStorage" -> {
 
             }
+            case "AdminMenu" -> eventPublisher.publishEvent(new AdminMenuEvent(update));
         }
     }
 

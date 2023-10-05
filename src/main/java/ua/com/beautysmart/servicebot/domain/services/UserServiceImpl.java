@@ -1,7 +1,9 @@
 package ua.com.beautysmart.servicebot.domain.services;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ua.com.beautysmart.servicebot.domain.bot.common.Role;
 import ua.com.beautysmart.servicebot.domain.entities.User;
@@ -16,6 +18,9 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepo;
+
+    @Value(value = "${super-user-chat-id}")
+    private long superAdmin;
 
     @Override
     public User addUser(long chatId, String name, String roleString) {
@@ -33,6 +38,12 @@ public class UserServiceImpl implements UserService {
                 .build();
         return userRepo.save(user);
     }
+
+    @PostConstruct
+    private void init() {
+        addUser(superAdmin, "admin", "admin");
+    }
+
 
 
     @Override

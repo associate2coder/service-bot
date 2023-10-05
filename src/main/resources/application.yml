@@ -21,12 +21,16 @@ spring:
   config:
     import: classpath:secrets.yml
 
-#logging
+# server settings
+server:
+  port: 3000
+
+# logging
 logging:
   level:
     ua:
       com:
         beautysmart:
           servicebot:
-            ServiceBotApplication: info
+            ServiceBotApplication: debug
 

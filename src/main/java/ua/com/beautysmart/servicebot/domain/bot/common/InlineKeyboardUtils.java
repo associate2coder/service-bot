@@ -27,24 +27,24 @@ public class InlineKeyboardUtils {
 
     public static List<InlineKeyboardButton> createBackToMainButtonRow() {
         return List.of(
-                InlineKeyboardUtils.createInlineButton("Головне меню", "MenuLevel-->MainMenu"),
-                InlineKeyboardUtils.createInlineButton("Назад", "MenuLevel-->StepBack")
+                InlineKeyboardUtils.createInlineButton("Головне меню", "MenuType-->MainMenu"),
+                InlineKeyboardUtils.createInlineButton("Назад", "MenuType-->StepBack")
         );
     }
 
     public static List<InlineKeyboardButton> createAdminButtonRow() {
-        return List.of(InlineKeyboardUtils.createInlineButton("Адміністрування", "MenuLevel-->AdminMenu")
+        return List.of(InlineKeyboardUtils.createInlineButton("Адміністрування", "MenuType-->AdminMenu///MenuLevel-->1")
         );
     }
 
     @SafeVarargs
-    public static ReplyKeyboard createReplyMarkup(List<InlineKeyboardButton>... rows) {
+    public static InlineKeyboardMarkup createReplyMarkup(List<InlineKeyboardButton>... rows) {
         List<List<InlineKeyboardButton>> listOfRows = Arrays.stream(rows).toList();
         return createReplyMarkup(listOfRows);
 
     }
 
-    public static ReplyKeyboard createReplyMarkup(List<List<InlineKeyboardButton>> listOfRows) {
+    public static InlineKeyboardMarkup createReplyMarkup(List<List<InlineKeyboardButton>> listOfRows) {
         return InlineKeyboardMarkup.builder()
                 .keyboard(listOfRows)
                 .build();

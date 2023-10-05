@@ -5,65 +5,57 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ua.com.beautysmart.servicebot.domain.bot.common.InlineKeyboardUtils;
 import ua.com.beautysmart.servicebot.domain.bot.common.TgUtils;
 import ua.com.beautysmart.servicebot.domain.bot.exceptions.TelegramApiRuntimeException;
-import ua.com.beautysmart.servicebot.domain.bot.menu.Context;
-import ua.com.beautysmart.servicebot.domain.bot.menu.MenuContextHolder;
 import ua.com.beautysmart.servicebot.domain.services.AccessValidationService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MainMenuEventListener {
+public class AdminMenuEventListener {
 
 
     private final TelegramLongPollingBot bot;
     private final AccessValidationService accessValidationService;
-    private final MenuContextHolder contextHolder;
 
     @EventListener
-    public void handleMainMenuEvent(MainMenuEvent event) {
-
+    public void handleAdminMenuEvent(AdminMenuEvent event) {
         Update update = (Update) event.getSource();
         long chatId = TgUtils.getChatIdFromUpdate(update);
 
-        //adding user context to the context holder
-        Context context = new Context(chatId);
-        context.setMenuType("MainMenu");
-        contextHolder.addContext(context);
+        // if user is not authorized, exception is thrown
+        accessValidationService.validateAdminAccess(update);
 
-
-        // creating keyboard for the Main Menu
+        // creating keyboard for the Admin Menu
         InlineKeyboardMarkup replyKeyboard = InlineKeyboardUtils.createReplyMarkup(
                 // first buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Реєстри сьогодні", "MenuType-->ScanSheetToday///MenuLevel-->1"),
-                        InlineKeyboardUtils.createInlineButton("Реєстри за 3 дні", "MenuType-->ScanSheet3Days///MenuLevel-->1")
+                        InlineKeyboardUtils.createInlineButton("Додати користувача", "MenuType-->AddUser///MenuLevel-->2")
                 ),
                 // second buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Пл.зберігання завтра", "MenuType-->PaidStorage///MenuLevel-->1"),
-                        InlineKeyboardUtils.createInlineButton("Пл.зберігання післязавтра", "MenuType-->PaidStorage///MenuLevel-->1")
+                        InlineKeyboardUtils.createInlineButton("Додати ключ ФОП", "MenuType-->AddSender///MenuLevel-->2")
                 ),
-                // if user is admin -> also adding admin buttons row
-                (accessValidationService.isAdmin(chatId) ? InlineKeyboardUtils.createAdminButtonRow() : null)
+                // to main / back to previous
+                InlineKeyboardUtils.createBackToMainButtonRow()
         );
 
-        // sending Main Menu message to the user
+        // Sending edited Admin Menu message to the user
         try {
             bot.execute(
-                    SendMessage.builder()
+                    EditMessageText.builder()
                             .chatId(chatId)
-                            .text("Головне меню:")
+                            .messageId(TgUtils.getMessageFromUpdate(update).getMessageId())
+                            .text("Панель адміністрування.\n\nВиберіть опцію:")
                             .replyMarkup(replyKeyboard)
                             .build()
             );
-            log.debug("Request to send Main Menu message has been sent to Telegram.");
+            log.debug("Request to edit message text to Admin Menu has been sent to Telegram.");
         } catch (TelegramApiException e) {
             throw new TelegramApiRuntimeException(e.getMessage());
         }

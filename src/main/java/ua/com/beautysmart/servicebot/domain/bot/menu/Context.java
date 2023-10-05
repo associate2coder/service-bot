@@ -1,6 +1,11 @@
 package ua.com.beautysmart.servicebot.domain.bot.menu;
 
 import lombok.*;
+import org.hibernate.sql.Update;
+import ua.com.beautysmart.servicebot.domain.entities.Sender;
+import ua.com.beautysmart.servicebot.domain.entities.User;
+import ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo.SenderRequest;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +22,10 @@ public class Context {
     @Getter @Setter
     private String value;
     private final Map<Integer, String> menuHistory;
+    @Getter @Setter
+    private SenderRequest addedSender;
+    @Getter @Setter
+    private User addedUser;
 
     public Context(long chatId) {
         this.chatId = chatId;
@@ -32,5 +41,15 @@ public class Context {
 
     public String getMenuHistoryItem(int menuLevel) {
         return menuHistory.get(menuLevel);
+    }
+
+    public void clear() {
+        menuHistory.clear();
+        clearAddedSender();
+    }
+
+    public void clearAddedSender() {
+        addedSender = null;
+        addedUser = null;
     }
 }

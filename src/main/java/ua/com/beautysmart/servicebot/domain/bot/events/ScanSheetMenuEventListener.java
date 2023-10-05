@@ -6,11 +6,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ua.com.beautysmart.servicebot.domain.bot.common.InlineKeyboardUtils;
+import ua.com.beautysmart.servicebot.domain.bot.common.TgUtils;
 import ua.com.beautysmart.servicebot.domain.bot.exceptions.TelegramApiRuntimeException;
 import ua.com.beautysmart.servicebot.domain.bot.menu.Context;
 import ua.com.beautysmart.servicebot.domain.bot.menu.MenuContextHolder;
@@ -19,7 +21,6 @@ import ua.com.beautysmart.servicebot.domain.novaposhta.functions.scansheets.Scan
 import ua.com.beautysmart.servicebot.domain.novaposhta.functions.scansheets.ScanSheetService;
 import ua.com.beautysmart.servicebot.domain.services.AccessValidationService;
 import ua.com.beautysmart.servicebot.domain.services.SenderService;
-import ua.com.beautysmart.servicebot.domain.services.UserService;
 
 import java.util.*;
 
@@ -30,7 +31,6 @@ public class ScanSheetMenuEventListener {
 
 
     private final TelegramLongPollingBot bot;
-    private final UserService userService;
     private final AccessValidationService accessValidationService;
     private final SenderService senderService;
     private final ScanSheetService scanSheetService;
@@ -48,7 +48,7 @@ public class ScanSheetMenuEventListener {
 
     public void handleScanSheetMenuEvent(ScanSheetTodayMenuEvent event, boolean today) {
         Update update = (Update) event.getSource();
-        long chatId = update.getMessage().getChatId();
+        long chatId = TgUtils.getChatIdFromUpdate(update);
 
         Context context = contextHolder.getContext(chatId);
 
@@ -56,16 +56,17 @@ public class ScanSheetMenuEventListener {
         accessValidationService.validateUserAccess(update);
 
 
-        Map<Sender, List<ScanSheet>> scansheets = retrieveScansheets(today);
+        Map<Sender, List<ScanSheet>> scanSheets = retrieveScanSheets(today);
 
-        // creating keyboard for the Scansheet Menu
-        ReplyKeyboard replyKeyboard = getReplyMarkup(scansheets, context);
+        // creating keyboard for the ScanSheet Menu
+        InlineKeyboardMarkup replyKeyboard = getReplyMarkup(scanSheets, context);
 
         // sending ScanSheet Menu message to the user
         try {
             bot.execute(
-                    SendMessage.builder()
-                            .chatId(update.getCallbackQuery().getMessage().getChatId())
+                    EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(TgUtils.getMessageFromUpdate(update).getMessageId())
                             .text("Оберіть потрібний реєстр:")
                             .replyMarkup(replyKeyboard)
                             .build()
@@ -75,30 +76,31 @@ public class ScanSheetMenuEventListener {
         }
     }
 
-    private Map<Sender, List<ScanSheet>> retrieveScansheets(boolean today) {
+    private Map<Sender, List<ScanSheet>> retrieveScanSheets(boolean today) {
         List<Sender> senders = senderService.getAllSenders();
-        Map<Sender, List<ScanSheet>> scansheets = new HashMap<>();
+        Map<Sender, List<ScanSheet>> scanSheets = new HashMap<>();
 
         int days = today ? 0 : 2;
+        log.debug("ScanSheets will be retrieved for " + (today ? "today only." : "three recent days including today"));
 
         for (Sender sender: senders) {
-            List<ScanSheet> senderScansheets = scanSheetService.getScanSheets(sender, days);
-            scansheets.put(sender, senderScansheets);
+            List<ScanSheet> senderScanSheets = scanSheetService.getScanSheets(sender, days);
+            scanSheets.put(sender, senderScanSheets);
         }
-        return scansheets;
+        return scanSheets;
     }
-    private ReplyKeyboard getReplyMarkup(Map<Sender, List<ScanSheet>> mapScansheets, Context context) {
+    private InlineKeyboardMarkup getReplyMarkup(Map<Sender, List<ScanSheet>> mapScanSheets, Context context) {
 
-        List<ScanSheet> scansheets = getScansheetsFromMap(mapScansheets);
+        List<ScanSheet> scanSheets = getScanSheetsFromMap(mapScanSheets);
 
         // creating keyboard for the ScanSheet Menu
         List<List<InlineKeyboardButton>> listOfRows = new ArrayList<>();
 
-        // iterating through scansheets and creating a button for each scansheet (to add it to its separate row)
-        for (ScanSheet scansheet : scansheets) {
+        // iterating through scanSheets and creating a button for each scanSheet (to add it to its separate row)
+        for (ScanSheet scansheet : scanSheets) {
 
             // getting data for the button name and callback
-            Sender sender = getSenderNameFromScanSheet(mapScansheets, scansheet);
+            Sender sender = getSenderNameFromScanSheet(mapScanSheets, scansheet);
 
             String buttonText = String.format(
                     "%s %s %s %s",
@@ -123,7 +125,7 @@ public class ScanSheetMenuEventListener {
         return InlineKeyboardUtils.createReplyMarkup(listOfRows);
     }
 
-    private List<ScanSheet> getScansheetsFromMap(Map<Sender, List<ScanSheet>> map) {
+    private List<ScanSheet> getScanSheetsFromMap(Map<Sender, List<ScanSheet>> map) {
         List<ScanSheet> list = new ArrayList<>();
         for (List<ScanSheet> item: map.values()) {
             list.addAll(item);
@@ -132,13 +134,12 @@ public class ScanSheetMenuEventListener {
         return list;
     }
 
-    private Sender getSenderNameFromScanSheet(Map<Sender, List<ScanSheet>> scansheets, ScanSheet scanSheet) {
-        for (Map.Entry<Sender, List<ScanSheet>> entry: scansheets.entrySet()) {
+    private Sender getSenderNameFromScanSheet(Map<Sender, List<ScanSheet>> scanSheets, ScanSheet scanSheet) {
+        for (Map.Entry<Sender, List<ScanSheet>> entry: scanSheets.entrySet()) {
             if (entry.getValue().contains(scanSheet)) {
                 return entry.getKey();
             }
         }
         return null;
     }
-
 }
