@@ -1,0 +1,32 @@
+# Database Configuration
+spring:
+  datasource:
+    url: ${JDBC_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driverClassName: org.postgresql.Driver
+
+  # JPA-Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # import
+  config:
+    import: classpath:secrets.yml
+
+#logging
+logging:
+  level:
+    ua:
+      com:
+        beautysmart:
+          servicebot:
+            ServiceBotApplication: info
+
