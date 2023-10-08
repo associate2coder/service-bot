@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -104,7 +103,7 @@ public class ScanSheetMenuEventListener {
 
             String buttonText = String.format(
                     "%s %s %s %s",
-                    sender.getName(),
+                    sender.getAlias(),
                     scansheet.getNumber(),
                     scansheet.getDateTime(),
                     scansheet.getCount()

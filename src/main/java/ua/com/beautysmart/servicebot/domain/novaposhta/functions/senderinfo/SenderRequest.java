@@ -10,6 +10,6 @@ public class SenderRequest {
 
     private String phone;
     private String apiKey;
-    private String name;
+    private String alias;
 
 }

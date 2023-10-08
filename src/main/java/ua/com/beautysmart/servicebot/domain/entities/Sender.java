@@ -14,7 +14,7 @@ public class Sender {
     @GeneratedValue
     private long id;
     private String phone;
-    private String name;
+    private String alias;
     private String apiKey;
     private String Ref;
     private String fullName;

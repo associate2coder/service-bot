@@ -22,6 +22,8 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
     @Override
     public void handle(Update update) {
 
+        // TODO need to add menu level logic so that (1) can return to previous menu, (2) once returned, context would be updated accordingly.
+
         // if chatId is not in User database, access is not granted
         accessValidationService.validateUserAccess(update);
 
@@ -102,7 +104,10 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
             // updating context with new data
             switch(str[0]) {
                 case "MenuType" -> context.setMenuType(str[1]);
-                case "MenuLevel" -> context.setMenuLevel(Integer.parseInt(str[1]));
+                case "MenuLevel" -> {
+                    context.setMenuLevel(Integer.parseInt(str[1]));
+                    context.updateHistoryLevel();
+                }
                 case "Value" -> context.setValue(str[1]);
             }
         }

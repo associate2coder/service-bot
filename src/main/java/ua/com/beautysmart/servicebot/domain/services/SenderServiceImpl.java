@@ -21,12 +21,12 @@ public class SenderServiceImpl implements SenderService{
     private final SenderRepository senderRepo;
 
     @Override
-    public Sender addSender(String phone, String name, String apiKey) {
+    public Sender addSender(String phone, String alias, String apiKey) {
         SenderDao senderDao = requestSender.send(new GetSenderInfoRequest(apiKey)).getData()[0];
         return senderRepo.save
                 (Sender.builder()
                         .phone(phone)
-                        .name(name)
+                        .alias(alias)
                         .apiKey(apiKey)
                         .Ref(senderDao.getRef())
                         .fullName(senderDao.getDescription())

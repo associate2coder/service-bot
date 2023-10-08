@@ -1,8 +1,6 @@
 package ua.com.beautysmart.servicebot.domain.bot.menu;
 
 import lombok.*;
-import org.hibernate.sql.Update;
-import ua.com.beautysmart.servicebot.domain.entities.Sender;
 import ua.com.beautysmart.servicebot.domain.entities.User;
 import ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo.SenderRequest;
 
@@ -51,5 +49,9 @@ public class Context {
     public void clearAddedSender() {
         addedSender = null;
         addedUser = null;
+    }
+
+    public void updateHistoryLevel() {
+        menuHistory.entrySet().removeIf(entry -> entry.getKey() > menuLevel);
     }
 }
