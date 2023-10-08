@@ -86,10 +86,20 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
                     log.error("ScanSheetToday MenuType appears to have menu levels other than expected.");
                 }
             }
+            case "ScanSheet3Days" -> {
+                if (context.getMenuLevel() == 1) {
+                    eventPublisher.publishEvent(new ScanSheet3DaysMenuEvent(update));
+                } else if (context.getMenuLevel() == 2) {
+                    eventPublisher.publishEvent(new ScanSheet3DaysMenuEvent(update));
+                } else {
+                    log.error("ScanSheet3Days MenuType appears to have menu levels other than expected.");
+                }
+            }
             case "PaidStorage" -> {
 
             }
             case "AdminMenu" -> eventPublisher.publishEvent(new AdminMenuEvent(update));
+            case "AddSender" -> eventPublisher.publishEvent(new AddSenderMenuEvent(update));
         }
     }
 
@@ -103,8 +113,8 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
 
             // updating context with new data
             switch(str[0]) {
-                case "MenuType" -> context.setMenuType(str[1]);
-                case "MenuLevel" -> {
+                case "Type" -> context.setMenuType(str[1]);
+                case "Level" -> {
                     context.setMenuLevel(Integer.parseInt(str[1]));
                     context.updateHistoryLevel();
                 }

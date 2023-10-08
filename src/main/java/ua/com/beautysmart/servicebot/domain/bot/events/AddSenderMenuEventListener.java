@@ -56,8 +56,9 @@ public class AddSenderMenuEventListener {
             }
 
             // "Adding Sender" logic starts when update has callback query from the button
-            // TODO need a proper condition for following option:
-            addSenderIntro(update);
+            else if ("AddSenderIntro".equals(value) && menuLevel == 2) {
+                addSenderIntro(update);
+            }
         }
 
         // Since data is entered by admin in messages, there should be no callback query.
@@ -76,9 +77,6 @@ public class AddSenderMenuEventListener {
             } else if (newSender.getAlias() == null) {
                 // once apiKey is added, proceed with entering alias for the Sender
                 checkAliasAndProceed(update);
-            } else {
-                // TODO to be checked if needed as it should be implemented above
-                // once alias is added, proceed with confirming with admin whether all information is correct
             }
         }
     }
@@ -89,6 +87,10 @@ public class AddSenderMenuEventListener {
 
         long chatId = TgUtils.getChatIdFromUpdate(update);
 
+        // init new SenderRequest instance in the context to be filled in
+        contextHolder.getContext(chatId).setAddedSender(new SenderRequest());
+
+
         String text1 = """
                 Ключ ФОП необхідно додати у такій послідовності:
                 - номер телефону
@@ -96,6 +98,7 @@ public class AddSenderMenuEventListener {
                 - alias - коротке ім'я для зручності (буде на кнопках)""";
 
         String text2 = "Введіть номер телефону у форматі 380ХХХХХХХХХ:";
+
 
         // Sending edited Admin Menu message to the user
         try {
@@ -135,7 +138,6 @@ public class AddSenderMenuEventListener {
         buildAndSendTemplateMessage(chatId, text);
     }
 
-
     private void numberAdded(Update update) {
 
         // if number is correct, it is added to context
@@ -163,6 +165,7 @@ public class AddSenderMenuEventListener {
         try {
             SenderDao senderDao = requestSender.send(new GetSenderInfoRequest(apiKey)).getData()[0];
             // if senderDao returns with information, apiKey is valid
+            log.debug("Api key search returned the following information: " + senderDao);
             return !senderDao.getRef().isEmpty();
         } catch (Exception e) {
             // if exception is thrown, apiKey is wrong (or server is down which makes it useless to add a sender anyway)
@@ -221,8 +224,8 @@ public class AddSenderMenuEventListener {
         // "OK, proceed" / "Try again" keyboard
         InlineKeyboardMarkup replyMarkup = InlineKeyboardUtils.createReplyMarkup(
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("OK", "MenuType-->AddSender///MenuLevel-->3///Value-->AddSenderConfirmed"), //TODO
-                        InlineKeyboardUtils.createInlineButton("Почати заново", "MenuType-->AddSender///MenuLevel-->2")
+                        InlineKeyboardUtils.createInlineButton("OK", "Type-->AddSender///Level-->3///Value-->AddSenderConfirmed"),
+                        InlineKeyboardUtils.createInlineButton("Почати заново", "Type-->AddSender///Level-->2///Value-->AddSenderIntro")
                 )
         );
 
@@ -269,11 +272,6 @@ public class AddSenderMenuEventListener {
         }
     }
 
-
-    private void startAddSenderAgain(Update update) {
-        //TODO
-    }
-
     private void buildAndSendTemplateMessage(long chatId, String text) {
         try {
             bot.execute(
@@ -317,7 +315,4 @@ public class AddSenderMenuEventListener {
                 InlineKeyboardUtils.createBackToMainButtonRow()
         );
     }
-
-
-
 }

@@ -12,6 +12,10 @@ public class GeneralConfig {
     @Value(value = "${bot-token}")
     private String botToken;
 
+    @Value(value = "${bot-username}")
+    private String botUsername;
+
+
     @Bean
     public HttpClient httpClient() {
         return HttpClient.newHttpClient();
@@ -20,6 +24,11 @@ public class GeneralConfig {
     @Bean
     public String botToken() {
         return botToken;
+    }
+
+    @Bean
+    public String botUsername() {
+        return botUsername;
     }
 
 }

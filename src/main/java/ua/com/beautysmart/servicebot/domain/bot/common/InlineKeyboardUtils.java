@@ -27,13 +27,19 @@ public class InlineKeyboardUtils {
 
     public static List<InlineKeyboardButton> createBackToMainButtonRow() {
         return List.of(
-                InlineKeyboardUtils.createInlineButton("Головне меню", "MenuType-->MainMenu"),
-                InlineKeyboardUtils.createInlineButton("Назад", "MenuType-->StepBack")
+                InlineKeyboardUtils.createInlineButton("Головне меню", "Type-->MainMenu"),
+                InlineKeyboardUtils.createInlineButton("Назад", "Type-->StepBack")
+        );
+    }
+
+    public static List<InlineKeyboardButton> createMainAsBackButtonRow() {
+        return List.of(
+                InlineKeyboardUtils.createInlineButton("Назад до Головного меню", "Type-->MainMenu")
         );
     }
 
     public static List<InlineKeyboardButton> createAdminButtonRow() {
-        return List.of(InlineKeyboardUtils.createInlineButton("Адміністрування", "MenuType-->AdminMenu///MenuLevel-->1")
+        return List.of(InlineKeyboardUtils.createInlineButton("Адміністрування", "Type-->AdminMenu///MenuLevel-->1")
         );
     }
 

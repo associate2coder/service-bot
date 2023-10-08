@@ -31,6 +31,5 @@ logging:
     ua:
       com:
         beautysmart:
-          servicebot:
-            ServiceBotApplication: debug
+          servicebot: trace
 

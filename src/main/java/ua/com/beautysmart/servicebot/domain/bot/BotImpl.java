@@ -13,14 +13,14 @@ import ua.com.beautysmart.servicebot.domain.bot.menu.MenuCommandHandler;
 @Slf4j
 public class BotImpl extends TelegramLongPollingBot {
 
-    @Value(value = "${bot-username}")
-    private String username;
+    private final String username;
 
     private final MenuCommandHandler commandHandler;
 
-    public BotImpl(String botToken, MenuCommandHandler commandHandler) {
+    public BotImpl(String botToken, String botUsername, MenuCommandHandler commandHandler) {
         super(botToken);
         this.commandHandler = commandHandler;
+        this.username = botUsername;
     }
 
     @PostConstruct

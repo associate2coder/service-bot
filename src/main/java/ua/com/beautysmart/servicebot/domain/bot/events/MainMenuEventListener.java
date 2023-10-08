@@ -42,13 +42,13 @@ public class MainMenuEventListener {
         InlineKeyboardMarkup replyKeyboard = InlineKeyboardUtils.createReplyMarkup(
                 // first buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Реєстри сьогодні", "MenuType-->ScanSheetToday///MenuLevel-->1"),
-                        InlineKeyboardUtils.createInlineButton("Реєстри за 3 дні", "MenuType-->ScanSheet3Days///MenuLevel-->1")
+                        InlineKeyboardUtils.createInlineButton("Реєстри сьогодні", "Type-->ScanSheetToday///Level-->1"),
+                        InlineKeyboardUtils.createInlineButton("Реєстри за 3 дні", "Type-->ScanSheet3Days///Level-->1")
                 ),
                 // second buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Пл.зберігання завтра", "MenuType-->PaidStorage///MenuLevel-->1"),
-                        InlineKeyboardUtils.createInlineButton("Пл.зберігання післязавтра", "MenuType-->PaidStorage///MenuLevel-->1")
+                        InlineKeyboardUtils.createInlineButton("Пл.зберігання завтра", "Type-->PaidStorage///Level-->1"),
+                        InlineKeyboardUtils.createInlineButton("Пл.зберігання післязавтра", "Type-->PaidStorage///Level-->1")
                 ),
                 // if user is admin -> also adding admin buttons row
                 (accessValidationService.isAdmin(chatId) ? InlineKeyboardUtils.createAdminButtonRow() : null)

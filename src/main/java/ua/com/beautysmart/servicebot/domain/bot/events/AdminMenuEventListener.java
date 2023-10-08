@@ -35,14 +35,14 @@ public class AdminMenuEventListener {
         InlineKeyboardMarkup replyKeyboard = InlineKeyboardUtils.createReplyMarkup(
                 // first buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Додати користувача", "MenuType-->AddUser///MenuLevel-->2")
+                        InlineKeyboardUtils.createInlineButton("Додати користувача", "Type-->AddUser///MenuLevel-->2")
                 ),
                 // second buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Додати ключ ФОП", "MenuType-->AddSender///MenuLevel-->2")
+                        InlineKeyboardUtils.createInlineButton("Додати ключ ФОП", "Type-->AddSender///Level-->2///Value-->AddSenderIntro")
                 ),
                 // to main / back to previous
-                InlineKeyboardUtils.createBackToMainButtonRow()
+                InlineKeyboardUtils.createMainAsBackButtonRow()
         );
 
         // Sending edited Admin Menu message to the user

@@ -2,6 +2,7 @@ package ua.com.beautysmart.servicebot.domain.bot.events;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -41,11 +42,11 @@ public class ScanSheetMenuEventListener {
     }
 
     @EventListener
-    public void handleScanSheet3DaysMenuEvent(ScanSheetTodayMenuEvent event) {
+    public void handleScanSheet3DaysMenuEvent(ScanSheet3DaysMenuEvent event) {
         handleScanSheetMenuEvent(event, false);
     }
 
-    public void handleScanSheetMenuEvent(ScanSheetTodayMenuEvent event, boolean today) {
+    public void handleScanSheetMenuEvent(ApplicationEvent event, boolean today) {
         Update update = (Update) event.getSource();
         long chatId = TgUtils.getChatIdFromUpdate(update);
 
@@ -56,23 +57,15 @@ public class ScanSheetMenuEventListener {
 
 
         Map<Sender, List<ScanSheet>> scanSheets = retrieveScanSheets(today);
+        log.debug("Total number of scanSheets found as per search parameters: " + scanSheets.size());
 
         // creating keyboard for the ScanSheet Menu
-        InlineKeyboardMarkup replyKeyboard = getReplyMarkup(scanSheets, context);
+        InlineKeyboardMarkup replyMarkup = getReplyMarkup(scanSheets, context);
 
         // sending ScanSheet Menu message to the user
-        try {
-            bot.execute(
-                    EditMessageText.builder()
-                            .chatId(chatId)
-                            .messageId(TgUtils.getMessageFromUpdate(update).getMessageId())
-                            .text("Оберіть потрібний реєстр:")
-                            .replyMarkup(replyKeyboard)
-                            .build()
-            );
-        } catch (TelegramApiException e) {
-            throw new TelegramApiRuntimeException(e.getMessage());
-        }
+        String text = scanSheetsNotFound(scanSheets) ? "Реєстрів не знайдено." : "Оберіть потрібний реєстр:";
+        buildAndSendEditMessage(update, text, replyMarkup);
+
     }
 
     private Map<Sender, List<ScanSheet>> retrieveScanSheets(boolean today) {
@@ -110,7 +103,7 @@ public class ScanSheetMenuEventListener {
             );
 
             String buttonCallbackData = String.format(
-                    "MenuType-->%s///MenuLevel-->2///Value-->%s",
+                    "Type-->%s///Level-->2///Value-->%s",
                     context.getMenuType(),
                     scansheet.getNumber()
             );
@@ -121,6 +114,7 @@ public class ScanSheetMenuEventListener {
                             )
                     );
         }
+        listOfRows.add(InlineKeyboardUtils.createMainAsBackButtonRow());
         return InlineKeyboardUtils.createReplyMarkup(listOfRows);
     }
 
@@ -129,8 +123,17 @@ public class ScanSheetMenuEventListener {
         for (List<ScanSheet> item: map.values()) {
             list.addAll(item);
         }
-        Collections.sort(list);
+        list.sort(Comparator.reverseOrder());
         return list;
+    }
+
+    private boolean scanSheetsNotFound(Map<Sender, List<ScanSheet>> map) {
+        for (List<ScanSheet> item: map.values()) {
+            if (!item.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Sender getSenderNameFromScanSheet(Map<Sender, List<ScanSheet>> scanSheets, ScanSheet scanSheet) {
@@ -140,5 +143,22 @@ public class ScanSheetMenuEventListener {
             }
         }
         return null;
+    }
+
+    private void buildAndSendEditMessage(Update update, String text, InlineKeyboardMarkup replyMarkup) {
+        long chatId = TgUtils.getChatIdFromUpdate(update);
+        int messageId = TgUtils.getMessageFromUpdate(update).getMessageId();
+        try {
+            bot.execute(
+                    EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(messageId)
+                            .text(text)
+                            .replyMarkup(replyMarkup)
+                            .build()
+            );
+        } catch (TelegramApiException e) {
+            throw new TelegramApiRuntimeException(e.getMessage());
+        }
     }
 }
