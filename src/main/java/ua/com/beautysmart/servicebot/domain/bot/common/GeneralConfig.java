@@ -1,5 +1,6 @@
 package ua.com.beautysmart.servicebot.domain.bot.common;
 
+import com.pnuema.java.barcode.Barcode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,11 @@ public class GeneralConfig {
     @Bean
     public String botUsername() {
         return botUsername;
+    }
+
+    @Bean
+    public Barcode barcode(){
+        return new Barcode();
     }
 
 }

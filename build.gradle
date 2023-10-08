@@ -32,6 +32,8 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
     implementation 'org.telegram:telegrambots:6.8.0'
+    implementation 'com.pnuema.java:barcode:1.13'
+
 
 }
 

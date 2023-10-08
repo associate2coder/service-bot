@@ -21,6 +21,9 @@ public class PaidStorageTtnServiceImpl implements PaidStorageTtnService {
 
     @Override
     public List<TTN> getTtnForPaidStorage(Sender sender, int days) {
+
+        // TODO fix NPE here
+
         LocalDate now = LocalDate.now();
         LocalDate relevantDate = now.plusDays(days);
         LocalDate startDate = now.minusDays(4);

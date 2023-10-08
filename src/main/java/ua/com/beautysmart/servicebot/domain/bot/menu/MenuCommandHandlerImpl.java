@@ -78,26 +78,21 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
         switch (context.getMenuType()) {
             case "MainMenu" -> eventPublisher.publishEvent(new MainMenuEvent(update));
             case "ScanSheetToday" -> {
-                if (context.getMenuLevel() == 1) {
-                    eventPublisher.publishEvent(new ScanSheetTodayMenuEvent(update));
-                } else if (context.getMenuLevel() == 2) {
-                    eventPublisher.publishEvent(new ScanSheetInfoEvent(update));
-                } else {
-                    log.error("ScanSheetToday MenuType appears to have menu levels other than expected.");
+                switch (context.getMenuLevel()) {
+                    case 1 -> eventPublisher.publishEvent(new ScanSheetTodayMenuEvent(update)); // choose scanSheet
+                    case 2 -> eventPublisher.publishEvent(new ScanSheetInfoEvent(update)); // see scanSheet info
+                    default -> log.error("ScanSheetToday MenuType appears to have menu levels other than expected."); // TODO: add exception and its handler
                 }
             }
             case "ScanSheet3Days" -> {
-                if (context.getMenuLevel() == 1) {
-                    eventPublisher.publishEvent(new ScanSheet3DaysMenuEvent(update));
-                } else if (context.getMenuLevel() == 2) {
-                    eventPublisher.publishEvent(new ScanSheet3DaysMenuEvent(update));
-                } else {
-                    log.error("ScanSheet3Days MenuType appears to have menu levels other than expected.");
+                switch (context.getMenuLevel()) {
+                    case 1 -> eventPublisher.publishEvent(new ScanSheet3DaysMenuEvent(update)); // choose scanSheet
+                    case 2 -> eventPublisher.publishEvent(new ScanSheetInfoEvent(update)); // see scanSheet info
+                    default -> log.error("ScanSheet3Days MenuType appears to have menu levels other than expected."); // TODO: add exception and its handler
                 }
             }
-            case "PaidStorage" -> {
-
-            }
+            case "PaidStorage1Day" -> eventPublisher.publishEvent(new PaidStorage1DayEvent(update));
+            case "PaidStorage2Days" -> eventPublisher.publishEvent(new PaidStorage2DaysEvent(update));
             case "AdminMenu" -> eventPublisher.publishEvent(new AdminMenuEvent(update));
             case "AddSender" -> eventPublisher.publishEvent(new AddSenderMenuEvent(update));
         }

@@ -19,6 +19,7 @@ import ua.com.beautysmart.servicebot.domain.bot.menu.MenuContextHolder;
 import ua.com.beautysmart.servicebot.domain.entities.Sender;
 import ua.com.beautysmart.servicebot.domain.novaposhta.functions.scansheets.ScanSheet;
 import ua.com.beautysmart.servicebot.domain.novaposhta.functions.scansheets.ScanSheetService;
+import ua.com.beautysmart.servicebot.domain.novaposhta.functions.scansheets.ScanSheetUtils;
 import ua.com.beautysmart.servicebot.domain.services.AccessValidationService;
 import ua.com.beautysmart.servicebot.domain.services.SenderService;
 
@@ -32,8 +33,7 @@ public class ScanSheetMenuEventListener {
 
     private final TelegramLongPollingBot bot;
     private final AccessValidationService accessValidationService;
-    private final SenderService senderService;
-    private final ScanSheetService scanSheetService;
+    private final ScanSheetUtils scanSheetUtils;
     private final MenuContextHolder contextHolder;
 
     @EventListener
@@ -56,7 +56,7 @@ public class ScanSheetMenuEventListener {
         accessValidationService.validateUserAccess(update);
 
 
-        Map<Sender, List<ScanSheet>> scanSheets = retrieveScanSheets(today);
+        Map<Sender, List<ScanSheet>> scanSheets = scanSheetUtils.retrieveScanSheets(today);
         log.debug("Total number of scanSheets found as per search parameters: " + scanSheets.size());
 
         // creating keyboard for the ScanSheet Menu
@@ -68,22 +68,10 @@ public class ScanSheetMenuEventListener {
 
     }
 
-    private Map<Sender, List<ScanSheet>> retrieveScanSheets(boolean today) {
-        List<Sender> senders = senderService.getAllSenders();
-        Map<Sender, List<ScanSheet>> scanSheets = new HashMap<>();
 
-        int days = today ? 0 : 2;
-        log.debug("ScanSheets will be retrieved for " + (today ? "today only." : "three recent days including today"));
-
-        for (Sender sender: senders) {
-            List<ScanSheet> senderScanSheets = scanSheetService.getScanSheets(sender, days);
-            scanSheets.put(sender, senderScanSheets);
-        }
-        return scanSheets;
-    }
     private InlineKeyboardMarkup getReplyMarkup(Map<Sender, List<ScanSheet>> mapScanSheets, Context context) {
 
-        List<ScanSheet> scanSheets = getScanSheetsFromMap(mapScanSheets);
+        List<ScanSheet> scanSheets = scanSheetUtils.getScanSheetsFromMap(mapScanSheets);
 
         // creating keyboard for the ScanSheet Menu
         List<List<InlineKeyboardButton>> listOfRows = new ArrayList<>();
@@ -116,15 +104,6 @@ public class ScanSheetMenuEventListener {
         }
         listOfRows.add(InlineKeyboardUtils.createMainAsBackButtonRow());
         return InlineKeyboardUtils.createReplyMarkup(listOfRows);
-    }
-
-    private List<ScanSheet> getScanSheetsFromMap(Map<Sender, List<ScanSheet>> map) {
-        List<ScanSheet> list = new ArrayList<>();
-        for (List<ScanSheet> item: map.values()) {
-            list.addAll(item);
-        }
-        list.sort(Comparator.reverseOrder());
-        return list;
     }
 
     private boolean scanSheetsNotFound(Map<Sender, List<ScanSheet>> map) {

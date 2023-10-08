@@ -41,6 +41,10 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(SenderNotFoundException.class)
     public void handleSenderNotFoundException(SenderNotFoundException e, WebRequest request) {
+
+        // TODO add handler which sends telegram message
         log.error("Error. Exception message: " + e.getMessage());
     }
+
+    // TODO CustomRuntimeException handler
 }

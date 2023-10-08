@@ -47,8 +47,8 @@ public class MainMenuEventListener {
                 ),
                 // second buttons row
                 InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("Пл.зберігання завтра", "Type-->PaidStorage///Level-->1"),
-                        InlineKeyboardUtils.createInlineButton("Пл.зберігання післязавтра", "Type-->PaidStorage///Level-->1")
+                        InlineKeyboardUtils.createInlineButton("Пл.зберігання завтра", "Type-->PaidStorage1Day///Level-->1"),
+                        InlineKeyboardUtils.createInlineButton("Пл.зберігання післязавтра", "Type-->PaidStorage2Days///Level-->1")
                 ),
                 // if user is admin -> also adding admin buttons row
                 (accessValidationService.isAdmin(chatId) ? InlineKeyboardUtils.createAdminButtonRow() : null)
