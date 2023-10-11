@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -14,5 +15,6 @@ import java.time.LocalDateTime;
 public class TtnTracking {
 
     private LocalDateTime firstDayPaidKeeping; // перший день платного зберігання
+    private LocalDate dateReturnCargo; // дата автоматичного повернення (якщо вона є, то немає платного зберігання)
 
 }

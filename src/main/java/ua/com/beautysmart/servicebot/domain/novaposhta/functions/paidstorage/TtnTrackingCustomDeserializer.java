@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
@@ -21,14 +20,24 @@ public class TtnTrackingCustomDeserializer extends JsonDeserializer<TtnTracking>
 
         JsonNode node = p.getCodec().readTree(p);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 2023-09-30 23:59:59
-        var thing = node.get(0);
-        String dateTime = thing.get("DatePayedKeeping").asText();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 2023-09-30 23:59:59
+        DateTimeFormatter dateFormater = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 2023-09-30
 
-        LocalDateTime paidStorageDateTime = LocalDateTime.parse(dateTime, formatter);
+        var item = node.get(0);
+        String dateTimeStorage = item.get("DatePayedKeeping").asText();
+        String dateReturnCargo = item.get("DateReturnCargo").asText();
 
+        LocalDateTime paidStorageDateTime = null;
+        LocalDate returnCargoDate = null;
+        if (!dateTimeStorage.isEmpty()) {
+            paidStorageDateTime = LocalDateTime.parse(dateTimeStorage, dateTimeFormatter);
+        }
+        if (!dateReturnCargo.isEmpty()) {
+            returnCargoDate = LocalDate.parse(dateReturnCargo, dateFormater);
+        }
         return TtnTracking.builder()
                 .firstDayPaidKeeping(paidStorageDateTime)
+                .dateReturnCargo(returnCargoDate)
                 .build();
     }
 }

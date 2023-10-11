@@ -8,9 +8,7 @@ import ua.com.beautysmart.servicebot.domain.novaposhta.common.NovaPoshtaRequestS
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -21,21 +19,26 @@ public class PaidStorageTtnServiceImpl implements PaidStorageTtnService {
 
     @Override
     public List<TTN> getTtnForPaidStorage(Sender sender, int days) {
-
-        // TODO fix NPE here
-
+        
         LocalDate now = LocalDate.now();
         LocalDate relevantDate = now.plusDays(days);
         LocalDate startDate = now.minusDays(4);
         List<TTN> resultList = new ArrayList<>();
 
+
         for (int i = 0; i < 9; i++) {
-            LocalDate date = startDate.plusDays(i);
+            LocalDate date = startDate.minusDays(i);
             List<TTN> filteredList = getAllTtns(sender, date)
                     .stream()
-                    .filter(ttn -> ttn.getFirstDayPaidKeeping().toLocalDate().equals(relevantDate)
-                            || ttn.getFirstDayPaidKeeping().toLocalDate().isAfter(LocalDate.now()))
+                    .peek(ttn -> log.debug("filtering TTN: " + ttn.toString()))
+                    .filter(ttn -> (
+                            ttn.getFirstDayPaidKeeping().toLocalDate().equals(relevantDate)
+                                    || ttn.getFirstDayPaidKeeping().toLocalDate().isBefore(relevantDate))
+                            && ttn.getFirstDayPaidKeeping().toLocalDate().isAfter(LocalDate.now()))
                     .toList();
+            if (filteredList.isEmpty()) {
+                continue;
+            }
             resultList.addAll(filteredList);
         }
         return resultList;
@@ -50,15 +53,32 @@ public class PaidStorageTtnServiceImpl implements PaidStorageTtnService {
 
         TTN[] ttnArray = requestSender.send(ttnRequest).getData();
 
-        List<TTN> ttnList = Arrays.stream(ttnArray)
+        List<TTN> ttnList = new ArrayList<>(Arrays.stream(ttnArray)
                 .filter(ttn -> ttn.getStatus().equals("7"))
-                .toList();
+                .toList()
+        );
 
-        for (TTN ttn: ttnList) {
-            LocalDateTime paidStorageDate = requestSender.send(
-                    new GetTtnTrackingInfoRequest()
-                            .setDocument(ttn.getNumber(), sender.getPhone())
-            ).getData().getFirstDayPaidKeeping();
+        if (ttnList.isEmpty()) {
+            return ttnList;
+        }
+
+        ListIterator<TTN> it = ttnList.listIterator();
+        while (it.hasNext()) {
+            int index = it.nextIndex();
+            TTN ttn = it.next();
+
+
+            log.debug("TTN being checked is: " + ttn.getNumber());
+
+            var request = new GetTtnTrackingInfoRequest()
+                    .setDocument(ttn.getNumber(), sender.getPhone());
+            var response = requestSender.send(request);
+            TtnTracking info = response.getData();
+            if (info.getFirstDayPaidKeeping() == null && info.getDateReturnCargo() != null) {
+                it.remove();
+                continue;
+            }
+            LocalDateTime paidStorageDate = response.getData().getFirstDayPaidKeeping();
             ttn.setFirstDayPaidKeeping(paidStorageDate);
         }
         return ttnList;

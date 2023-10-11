@@ -57,13 +57,13 @@ public class PaidStorageEventListener {
     }
 
     private String getMessageTextFromMap(Map<Sender, List<TTN>> map, int days) {
-        String dayText = days == 1 ? "1 день" : "2 дні";
-        String resultText = "ЕН з платним зберіганням через" + dayText;
+        String dayText = days == 1 ? "1 день" : "1-2 дні";
+        String resultText = "ЕН з платним зберіганням через " + dayText;
         if (ttnsNotFound(map)) {
             return resultText + " не знайдено";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(resultText + ":");
+        sb.append(resultText + ":\n");
         for (Map.Entry<Sender, List<TTN>> entry: map.entrySet()) {
             List<TTN> list = entry.getValue();
             if (!list.isEmpty()) {
