@@ -132,7 +132,7 @@ public class AddSenderMenuEventListener {
         long chatId = TgUtils.getChatIdFromUpdate(update);
         String phone = update.getMessage().getText();
         String text = String.format("""
-                Помилка у форматы номеру телефону %s.
+                Помилка у форматі номеру телефону %s.
 
                 Введіть номер телефону у форматі 380ХХХХХХХХХ:""", phone);
         buildAndSendTemplateMessage(chatId, text);

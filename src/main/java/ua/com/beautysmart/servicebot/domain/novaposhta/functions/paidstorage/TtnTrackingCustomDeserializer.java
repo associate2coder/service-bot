@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class TtnTrackingCustomDeserializer extends JsonDeserializer<TtnTracking> {
@@ -19,35 +20,15 @@ public class TtnTrackingCustomDeserializer extends JsonDeserializer<TtnTracking>
     public TtnTracking deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 
         JsonNode node = p.getCodec().readTree(p);
-        String[] datePayedKeeping = node.get("DatePayedKeeping").asText().split(" ");
 
-        String[] dateString = datePayedKeeping[0].split("-");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 2023-09-30 23:59:59
+        var thing = node.get(0);
+        String dateTime = thing.get("DatePayedKeeping").asText();
 
-        LocalDate date = LocalDate.of(
-                parseInt(dateString[0]), //year
-                parseInt(dateString[1]), // month
-                parseInt(dateString[2])  // day
-        );
+        LocalDateTime paidStorageDateTime = LocalDateTime.parse(dateTime, formatter);
 
-        String[] timeString = datePayedKeeping[1].split(":");
-
-        LocalTime time = LocalTime.of(
-                parseInt(timeString[0]),
-                parseInt(timeString[1]),
-                parseInt(timeString[2])
-        );
         return TtnTracking.builder()
-                .firstDayPaidKeeping(LocalDateTime.of(date, time))
+                .firstDayPaidKeeping(paidStorageDateTime)
                 .build();
     }
-
-    int parseInt(String number) {
-        try {
-            return Integer.parseInt(number);
-        } catch (NumberFormatException e) {
-            log.error(e.getMessage());
-        }
-        return -1;
-    }
-
 }
