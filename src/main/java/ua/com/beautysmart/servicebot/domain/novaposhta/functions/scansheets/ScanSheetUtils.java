@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-import ua.com.beautysmart.servicebot.domain.bot.exceptions.CustomRuntimeException;
+import ua.com.beautysmart.servicebot.domain.exceptions.CustomRuntimeException;
 import ua.com.beautysmart.servicebot.domain.entities.Sender;
 import ua.com.beautysmart.servicebot.domain.services.SenderService;
 
 import java.util.*;
+
+/**
+ * Author: associate2coder
+ */
 
 @Service
 @RequiredArgsConstructor

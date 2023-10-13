@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.net.http.HttpRequest;
 
+/**
+ * Author: associate2coder
+ */
+
 @Component
 @Slf4j
 public class NovaPoshtaHttpRequestFactoryImpl implements HttpRequestFactory {

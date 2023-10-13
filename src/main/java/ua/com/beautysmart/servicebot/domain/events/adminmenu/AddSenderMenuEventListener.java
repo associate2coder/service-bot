@@ -1,17 +1,15 @@
-package ua.com.beautysmart.servicebot.domain.bot.events;
+package ua.com.beautysmart.servicebot.domain.events.adminmenu;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ua.com.beautysmart.servicebot.domain.bot.common.InlineKeyboardUtils;
+import ua.com.beautysmart.servicebot.domain.bot.common.KeyboardUtils;
+import ua.com.beautysmart.servicebot.domain.bot.common.MessageUtil;
 import ua.com.beautysmart.servicebot.domain.bot.common.TgUtils;
-import ua.com.beautysmart.servicebot.domain.bot.exceptions.TelegramApiRuntimeException;
 import ua.com.beautysmart.servicebot.domain.bot.menu.Context;
 import ua.com.beautysmart.servicebot.domain.bot.menu.MenuContextHolder;
 import ua.com.beautysmart.servicebot.domain.entities.Sender;
@@ -25,16 +23,20 @@ import ua.com.beautysmart.servicebot.domain.services.SenderService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Author: associate2coder
+ */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AddSenderMenuEventListener {
 
-    private final TelegramLongPollingBot bot;
     private final AccessValidationService accessValidationService;
     private final SenderService senderService;
     private final MenuContextHolder contextHolder;
     private final NovaPoshtaRequestSender requestSender;
+    private final MessageUtil messageUtil;
 
     // TODO logic in this class should be simplified. Too complicated
     @EventListener
@@ -91,28 +93,16 @@ public class AddSenderMenuEventListener {
         contextHolder.getContext(chatId).setAddedSender(new SenderRequest());
 
 
-        String text1 = """
+        String introText = """
                 Ключ ФОП необхідно додати у такій послідовності:
                 - номер телефону
                 - ключ API з кабінету нової пошти
                 - alias - коротке ім'я для зручності (буде на кнопках)""";
 
-        String text2 = "Введіть номер телефону у форматі 380ХХХХХХХХХ:";
+        messageUtil.createAndSendNewMessage(chatId, introText);
 
-
-        // Sending edited Admin Menu message to the user
-        try {
-            bot.execute(
-                    SendMessage.builder()
-                            .chatId(chatId)
-                            .text(text1)
-                            .build()
-            );
-            addSenderSendMessageDebugLog();
-        } catch (TelegramApiException e) {
-            throw new TelegramApiRuntimeException(e.getMessage());
-        }
-        buildAndSendTemplateMessage(chatId, text2);
+        String enterPhoneText = "Введіть номер телефону у форматі 380ХХХХХХХХХ:";
+        messageUtil.createAndSendNewMessage(chatId, enterPhoneText);
     }
 
     private void checkPhoneAndProceed(Update update) {
@@ -135,7 +125,7 @@ public class AddSenderMenuEventListener {
                 Помилка у форматі номеру телефону %s.
 
                 Введіть номер телефону у форматі 380ХХХХХХХХХ:""", phone);
-        buildAndSendTemplateMessage(chatId, text);
+        messageUtil.createAndSendNewMessage(chatId, text);
     }
 
     private void numberAdded(Update update) {
@@ -148,7 +138,7 @@ public class AddSenderMenuEventListener {
         // proceed with "adding" process for apiKey
         String text = "ключ API з кабінету нової пошти:";
 
-        buildAndSendTemplateMessage(chatId, text);
+        messageUtil.createAndSendNewMessage(chatId, text);
     }
 
     private void checkApiKeyAndProceed(Update update) {
@@ -179,7 +169,7 @@ public class AddSenderMenuEventListener {
                 Помилка у ключі API Нової пошти.
 
                 ключ API з кабінету нової пошти:""";
-        buildAndSendTemplateMessage(chatId, text);
+        messageUtil.createAndSendNewMessage(chatId, text);
     }
 
     private void apiKeyAdded(Update update) {
@@ -190,7 +180,7 @@ public class AddSenderMenuEventListener {
         newSender.setApiKey(update.getMessage().getText());
 
         String text = "Введіть alias (коротке ім'я для зручності, яке буде на кнопках):";
-        buildAndSendTemplateMessage(chatId, text);
+        messageUtil.createAndSendNewMessage(chatId, text);
     }
 
     private void checkAliasAndProceed(Update update) {
@@ -211,7 +201,7 @@ public class AddSenderMenuEventListener {
                 Символ '/' не може бути в назві.
                 
                 Введіть коротку назву для відповідного ФОПа:""";
-        buildAndSendTemplateMessage(chatId, text);
+        messageUtil.createAndSendNewMessage(chatId, text);
     }
 
 
@@ -222,10 +212,10 @@ public class AddSenderMenuEventListener {
         newSender.setAlias(update.getMessage().getText());
 
         // "OK, proceed" / "Try again" keyboard
-        InlineKeyboardMarkup replyMarkup = InlineKeyboardUtils.createReplyMarkup(
-                InlineKeyboardUtils.createButtonRow(
-                        InlineKeyboardUtils.createInlineButton("OK", "Type-->AddSender///Level-->3///Value-->AddSenderConfirmed"),
-                        InlineKeyboardUtils.createInlineButton("Почати заново", "Type-->AddSender///Level-->2///Value-->AddSenderIntro")
+        InlineKeyboardMarkup replyKeyboard = KeyboardUtils.createInlineReplyMarkup(
+                KeyboardUtils.createInlineButtonRow(
+                        KeyboardUtils.createInlineButton("OK", "Type-->AddSender///Level-->3///Value-->AddSenderConfirmed"),
+                        KeyboardUtils.createInlineButton("Почати заново", "Type-->AddSender///Level-->2///Value-->AddSenderIntro")
                 )
         );
 
@@ -241,7 +231,7 @@ public class AddSenderMenuEventListener {
                 newSender.getAlias(),
                 !newSender.getApiKey().isBlank());
 
-        buildAndSendTemplateMessage(chatId, text, replyMarkup);
+        messageUtil.createAndSendNewMessage(chatId, text, replyKeyboard);
     }
 
     private void addSenderRequestConfirmed(Update update) {
@@ -253,66 +243,17 @@ public class AddSenderMenuEventListener {
 
         contextHolder.getContext(chatId).clearAddedSender();
 
-        InlineKeyboardMarkup replyMarkup = InlineKeyboardUtils.createReplyMarkup(
-                InlineKeyboardUtils.createBackToMainButtonRow()
-        );
+        InlineKeyboardMarkup replyKeyboard = KeyboardUtils.createInlineReplyMarkup(
+                KeyboardUtils.createBackToMainInlineButtonRow());
 
-        try {
-            bot.execute(
-                    SendMessage.builder()
-                            .chatId(chatId)
-                            .text(text)
-                            .replyMarkup(replyMarkup)
-                            .build()
-            );
-
-            addSenderSendMessageDebugLog();
-        } catch (TelegramApiException e) {
-            throw new TelegramApiRuntimeException(e.getMessage());
-        }
-    }
-
-    private void buildAndSendTemplateMessage(long chatId, String text) {
-        try {
-            bot.execute(
-                    SendMessage.builder()
-                            .chatId(chatId)
-                            .text(text)
-                            .replyMarkup(getBackButtons())
-                            .build()
-            );
-
-            addSenderSendMessageDebugLog();
-        } catch (TelegramApiException e) {
-            throw new TelegramApiRuntimeException(e.getMessage());
-        }
-    }
-
-    private void buildAndSendTemplateMessage(long chatId, String text, InlineKeyboardMarkup replyMarkup) {
-        try {
-            bot.execute(
-                    SendMessage.builder()
-                            .chatId(chatId)
-                            .text(text)
-                            .replyMarkup(replyMarkup)
-                            .build()
-            );
-
-            addSenderSendMessageDebugLog();
-        } catch (TelegramApiException e) {
-            throw new TelegramApiRuntimeException(e.getMessage());
-        }
-    }
-
-    private void addSenderSendMessageDebugLog() {
-        log.debug("Request to send message text to AddSender Menu has been sent to Telegram.");
+        messageUtil.createAndSendNewMessage(chatId, text, replyKeyboard);
     }
 
     private InlineKeyboardMarkup getBackButtons() {
         // creating keyboard for "To main / back to Admin"
-        return InlineKeyboardUtils.createReplyMarkup(
+        return KeyboardUtils.createInlineReplyMarkup(
                 // to main / back to previous
-                InlineKeyboardUtils.createBackToMainButtonRow()
+                KeyboardUtils.createBackToMainInlineButtonRow()
         );
     }
 }

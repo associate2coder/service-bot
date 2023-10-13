@@ -2,13 +2,15 @@ package ua.com.beautysmart.servicebot.domain.bot;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ua.com.beautysmart.servicebot.domain.bot.menu.MenuCommandHandler;
 
+/**
+ * Author: associate2coder
+ */
 @Component
 @Slf4j
 public class BotImpl extends TelegramLongPollingBot {
@@ -36,6 +38,9 @@ public class BotImpl extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+
+        log.debug("Update received: " + update.getMessage());
+
         if (update != null) {
 
             commandHandler.handle(update);

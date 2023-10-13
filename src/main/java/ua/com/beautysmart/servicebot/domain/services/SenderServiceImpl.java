@@ -3,7 +3,7 @@ package ua.com.beautysmart.servicebot.domain.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ua.com.beautysmart.servicebot.domain.bot.exceptions.SenderNotFoundException;
+import ua.com.beautysmart.servicebot.domain.exceptions.SenderNotFoundException;
 import ua.com.beautysmart.servicebot.domain.entities.Sender;
 import ua.com.beautysmart.servicebot.domain.novaposhta.common.NovaPoshtaRequestSender;
 import ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo.GetSenderInfoRequest;
@@ -11,6 +11,10 @@ import ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo.Send
 import ua.com.beautysmart.servicebot.persistence.SenderRepository;
 
 import java.util.List;
+
+/**
+ * Author: associate2coder
+ */
 
 @Service
 @RequiredArgsConstructor

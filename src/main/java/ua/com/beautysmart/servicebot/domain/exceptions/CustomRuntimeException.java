@@ -1,4 +1,8 @@
-package ua.com.beautysmart.servicebot.domain.bot.exceptions;
+package ua.com.beautysmart.servicebot.domain.exceptions;
+
+/**
+ * Author: associate2coder
+ */
 
 public class CustomRuntimeException extends RuntimeException {
 

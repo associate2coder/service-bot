@@ -6,6 +6,9 @@ import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Author: associate2coder
+ */
 @Getter
 public abstract class NovaPoshtaBaseRequest<T extends NovaPoshtaBaseRequest<T, R, T1>, R extends NovaPoshtaBaseResponse, T1> {
 

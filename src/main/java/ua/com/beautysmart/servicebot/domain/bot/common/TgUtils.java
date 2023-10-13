@@ -3,6 +3,10 @@ package ua.com.beautysmart.servicebot.domain.bot.common;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+/**
+ * Author: associate2coder
+ */
+
 public class TgUtils {
 
     public static long getChatIdFromUpdate(Update update) {

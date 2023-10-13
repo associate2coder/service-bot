@@ -1,11 +1,16 @@
 package ua.com.beautysmart.servicebot.domain.bot.menu;
 
 import lombok.*;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import ua.com.beautysmart.servicebot.domain.entities.User;
 import ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo.SenderRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+
+/**
+ * Author: associate2coder
+ */
 
 @EqualsAndHashCode
 @ToString
@@ -19,39 +24,45 @@ public class Context {
     private int menuLevel;
     @Getter @Setter
     private String value;
-    private final Map<Integer, String> menuHistory;
+    private final Map<Integer, Update> history;
     @Getter @Setter
     private SenderRequest addedSender;
     @Getter @Setter
     private User addedUser;
+    @Getter @Setter
+    private boolean back;
 
     public Context(long chatId) {
         this.chatId = chatId;
-        this.menuHistory = new HashMap<>();
+        this.history = new HashMap<>();
         // Context is being created / re-created when MainMenu (or /start) commands are called
         this.menuType = "MainMenu";
         this.menuLevel = 0;
+        this.back = false;
     }
 
-    public void addMenuHistoryItem(int menuLevel, String returnCallbackData) {
-        menuHistory.put(menuLevel, returnCallbackData);
+    public void addMenuHistoryItem(int menuLevel, Update returnUpdate) {
+        history.put(menuLevel, returnUpdate);
     }
 
-    public String getMenuHistoryItem(int menuLevel) {
-        return menuHistory.get(menuLevel);
+    public Update getMenuHistoryItem(int menuLevel) {
+        return history.get(menuLevel);
     }
 
     public void clear() {
-        menuHistory.clear();
         clearAddedSender();
+        clearAddedUser();
     }
 
     public void clearAddedSender() {
         addedSender = null;
+    }
+
+    public void clearAddedUser() {
         addedUser = null;
     }
 
     public void updateHistoryLevel() {
-        menuHistory.entrySet().removeIf(entry -> entry.getKey() > menuLevel);
+        history.entrySet().removeIf(entry -> entry.getKey() > menuLevel);
     }
 }

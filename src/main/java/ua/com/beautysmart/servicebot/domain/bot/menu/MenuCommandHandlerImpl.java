@@ -7,8 +7,21 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ua.com.beautysmart.servicebot.domain.bot.common.TgUtils;
-import ua.com.beautysmart.servicebot.domain.bot.events.*;
+import ua.com.beautysmart.servicebot.domain.events.accesscontrol.RequestAccessEvent;
+import ua.com.beautysmart.servicebot.domain.events.adminmenu.AddSenderMenuEvent;
+import ua.com.beautysmart.servicebot.domain.events.accesscontrol.AddUserConfirmedEvent;
+import ua.com.beautysmart.servicebot.domain.events.accesscontrol.AddUserEvent;
+import ua.com.beautysmart.servicebot.domain.events.adminmenu.AdminMenuEvent;
+import ua.com.beautysmart.servicebot.domain.events.mainmenu.MainMenuEvent;
+import ua.com.beautysmart.servicebot.domain.events.paidstorage.PaidStorageEvent;
+import ua.com.beautysmart.servicebot.domain.events.scansheets.ScanSheet3DaysMenuEvent;
+import ua.com.beautysmart.servicebot.domain.events.scansheets.ScanSheetInfoEvent;
+import ua.com.beautysmart.servicebot.domain.events.scansheets.ScanSheetTodayMenuEvent;
 import ua.com.beautysmart.servicebot.domain.services.AccessValidationService;
+
+/**
+ * Author: associate2coder
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +35,14 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
     @Override
     public void handle(Update update) {
 
-        // TODO need to add menu level logic so that (1) can return to previous menu, (2) once returned, context would be updated accordingly.
+        long chatId = TgUtils.getChatIdFromUpdate(update);
 
         // if chatId is not in User database, access is not granted
+        if (!accessValidationService.isUser(chatId)) {
+            eventPublisher.publishEvent(new RequestAccessEvent(update));
+            return;
+        }
+
         accessValidationService.validateUserAccess(update);
 
         // if message has a callback query, callback query is handled
@@ -33,7 +51,6 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
             handleCallbackData(update);
             return;
         }
-
 
         // if message does not have a callback query but has a message (e.g., /start or other command)
         // such update with command is handled accordingly
@@ -50,7 +67,6 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
                 return;
             }
 
-            long chatId = TgUtils.getChatIdFromUpdate(update);
             Context context = contextHolder.getContext(chatId);
             if ("AddSender".equals(context.getMenuType())) {
                 eventPublisher.publishEvent(new AddSenderMenuEvent(update));
@@ -59,7 +75,6 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
 
         }
     }
-
     private void handleCommands(Update update) {
 
         // switch is introduced since it is not expected that there will be lots of commands
@@ -68,15 +83,22 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
             case "/start" -> eventPublisher.publishEvent(new MainMenuEvent(update));
         }
     }
+
     private void handleCallbackData(Update update) {
 
-        String callbackData = update.getCallbackQuery().getData();
         long chatId = TgUtils.getChatIdFromUpdate(update);
-        Context context = updateContextWithCallbackData(callbackData, chatId);
+        Context context = updateContextWithCallbackData(update, chatId);
         log.debug("Context: " + context);
 
         switch (context.getMenuType()) {
             case "MainMenu" -> eventPublisher.publishEvent(new MainMenuEvent(update));
+            case "StepBack" -> {
+                context.setBack(true);
+                int previousMenu = context.getMenuLevel() - 1;
+                Update returnUpdate = context.getMenuHistoryItem(previousMenu);
+                handleCallbackData(returnUpdate);
+                context.setBack(false);
+            }
             case "ScanSheetToday" -> {
                 switch (context.getMenuLevel()) {
                     case 1 -> eventPublisher.publishEvent(new ScanSheetTodayMenuEvent(update)); // choose scanSheet
@@ -91,14 +113,19 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
                     default -> log.error("ScanSheet3Days MenuType appears to have menu levels other than expected."); // TODO: add exception and its handler
                 }
             }
-            case "PaidStorage1Day" -> eventPublisher.publishEvent(new PaidStorage1DayEvent(update));
-            case "PaidStorage2Days" -> eventPublisher.publishEvent(new PaidStorage2DaysEvent(update));
+            case "PaidStorage" -> eventPublisher.publishEvent(new PaidStorageEvent(update));
             case "AdminMenu" -> eventPublisher.publishEvent(new AdminMenuEvent(update));
             case "AddSender" -> eventPublisher.publishEvent(new AddSenderMenuEvent(update));
+            case "AddUser" -> eventPublisher.publishEvent(new AddUserEvent(update));
+            case "AddUserConfirmed" -> eventPublisher.publishEvent(new AddUserConfirmedEvent(update));
         }
     }
 
-    private Context updateContextWithCallbackData(String callbackData, long chatId) {
+
+
+    private Context updateContextWithCallbackData(Update update, long chatId) {
+        String callbackData = update.getCallbackQuery().getData();
+
         Context context = contextHolder.getContext(chatId);
 
         String[] argGroups = callbackData.split("///");
@@ -117,7 +144,7 @@ public class MenuCommandHandlerImpl implements MenuCommandHandler {
             }
         }
         // adding existing state into context
-        context.addMenuHistoryItem(context.getMenuLevel(), callbackData);
+        context.addMenuHistoryItem(context.getMenuLevel(), update);
         return context;
     }
 }

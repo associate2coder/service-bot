@@ -2,12 +2,17 @@ package ua.com.beautysmart.servicebot.domain.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ua.com.beautysmart.servicebot.domain.bot.common.Role;
 import ua.com.beautysmart.servicebot.domain.bot.common.TgUtils;
-import ua.com.beautysmart.servicebot.domain.bot.exceptions.AccessRestrictedException;
+import ua.com.beautysmart.servicebot.domain.exceptions.AccessRestrictedException;
 import ua.com.beautysmart.servicebot.domain.entities.User;
+
+/**
+ * Author: associate2coder
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +31,7 @@ public class AccessValidationServiceImpl implements AccessValidationService {
     public void validateUserAccess(Update update) {
         long chatId = TgUtils.getChatIdFromUpdate(update);
         if (!isUser(chatId)) {
-            throw new AccessRestrictedException("Action is not permitted. Access denied", update);
+            throw new AccessRestrictedException("Це закритий бот. У доступі відмовлено.", update);
         }
         log.debug("Access granted to user with chat ID: " + chatId);
     }
@@ -44,4 +49,5 @@ public class AccessValidationServiceImpl implements AccessValidationService {
         }
         log.debug("Access granted to admin with chat ID: " + chatId);
     }
+
 }

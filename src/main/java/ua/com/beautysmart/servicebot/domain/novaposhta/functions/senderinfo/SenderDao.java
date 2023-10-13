@@ -3,6 +3,10 @@ package ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
+/**
+ * Author: associate2coder
+ */
+
 @Data
 public class SenderDao {
 

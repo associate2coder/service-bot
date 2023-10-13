@@ -5,7 +5,11 @@ import ua.com.beautysmart.servicebot.domain.entities.Sender;
 
 import java.util.List;
 
+/**
+ * Author: associate2coder
+ */
+
 public interface PaidStorageTtnService {
 
-    List<TTN> getTtnForPaidStorage(Sender sender, int day);
+    List<TTN> getTtnForPaidStorage(Sender sender);
 }

@@ -3,6 +3,10 @@ package ua.com.beautysmart.servicebot.domain.novaposhta.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
+/**
+ * Author: associate2coder
+ */
+
 @Getter
 public abstract class NovaPoshtaBaseResponse {
 

@@ -7,6 +7,9 @@ import jakarta.persistence.Table;
 import lombok.*;
 import ua.com.beautysmart.servicebot.domain.bot.common.Role;
 
+/**
+ * Author: associate2coder
+ */
 @Entity
 @Table(name = "users")
 @NoArgsConstructor @AllArgsConstructor

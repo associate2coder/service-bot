@@ -12,6 +12,10 @@ import ua.com.beautysmart.servicebot.persistence.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Author: associate2coder
+ */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -43,9 +47,6 @@ public class UserServiceImpl implements UserService {
     private void init() {
         addUser(superAdmin, "admin", "admin");
     }
-
-
-
     @Override
     public User getUser(long chatId) {
         Optional<User> userSearch = userRepo.findById(chatId);

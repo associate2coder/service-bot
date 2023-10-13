@@ -5,6 +5,10 @@ import ua.com.beautysmart.servicebot.domain.novaposhta.common.NovaPoshtaBaseRequ
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Author: associate2coder
+ */
+
 public class GetPendingTtnRequest extends NovaPoshtaBaseRequest<GetPendingTtnRequest, GetPendingTtnResponse, TTN[]> {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");

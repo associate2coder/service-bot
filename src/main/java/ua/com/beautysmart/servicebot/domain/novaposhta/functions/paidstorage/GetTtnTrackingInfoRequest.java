@@ -5,6 +5,10 @@ import ua.com.beautysmart.servicebot.domain.novaposhta.common.NovaPoshtaBaseRequ
 
 import java.util.List;
 
+/**
+ * Author: associate2coder
+ */
+
 public class GetTtnTrackingInfoRequest extends NovaPoshtaBaseRequest<GetTtnTrackingInfoRequest, GetTtnTrackingInfoResponse, TtnTracking> {
 
 

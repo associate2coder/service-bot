@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.net.http.HttpClient;
 
+/**
+ * Author: associate2coder
+ */
 @Configuration
 public class GeneralConfig {
 
@@ -15,8 +18,6 @@ public class GeneralConfig {
 
     @Value(value = "${bot-username}")
     private String botUsername;
-
-
     @Bean
     public HttpClient httpClient() {
         return HttpClient.newHttpClient();

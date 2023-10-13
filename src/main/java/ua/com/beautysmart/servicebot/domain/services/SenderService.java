@@ -4,6 +4,10 @@ import ua.com.beautysmart.servicebot.domain.entities.Sender;
 
 import java.util.List;
 
+/**
+ * Author: associate2coder
+ */
+
 public interface SenderService {
 
     Sender addSender(String phone, String alias, String apiKey);

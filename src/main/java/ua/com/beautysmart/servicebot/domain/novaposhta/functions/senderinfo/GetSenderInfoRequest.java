@@ -2,6 +2,10 @@ package ua.com.beautysmart.servicebot.domain.novaposhta.functions.senderinfo;
 
 import ua.com.beautysmart.servicebot.domain.novaposhta.common.NovaPoshtaBaseRequest;
 
+/**
+ * Author: associate2coder
+ */
+
 public class GetSenderInfoRequest extends NovaPoshtaBaseRequest<GetSenderInfoRequest, GetSenderInfoResponse, SenderDao[]> {
 
     public GetSenderInfoRequest(String apiKey) {

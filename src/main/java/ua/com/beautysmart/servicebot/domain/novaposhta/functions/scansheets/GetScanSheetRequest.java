@@ -2,6 +2,10 @@ package ua.com.beautysmart.servicebot.domain.novaposhta.functions.scansheets;
 
 import ua.com.beautysmart.servicebot.domain.novaposhta.common.NovaPoshtaBaseRequest;
 
+/**
+ * Author: associate2coder
+ */
+
 public class GetScanSheetRequest extends NovaPoshtaBaseRequest<GetScanSheetRequest, GetScanSheetResponse, ScanSheet[]> {
 
     public GetScanSheetRequest(String apiKey) {

@@ -5,6 +5,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * Author: associate2coder
+ */
+
 @Component
 @RequiredArgsConstructor
 public class MenuContextHolder {
@@ -18,5 +22,4 @@ public class MenuContextHolder {
     public Context getContext(long chatId) {
         return storage.get(chatId);
     }
-
 }

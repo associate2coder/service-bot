@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+/**
+ * Author: associate2coder
+ */
+
 public class TtnCustomDeserializer extends JsonDeserializer<TTN[]> {
     @Override
     public TTN[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {

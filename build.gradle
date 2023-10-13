@@ -34,6 +34,9 @@ dependencies {
     implementation 'org.telegram:telegrambots:6.8.0'
     implementation 'com.pnuema.java:barcode:1.13'
 
+    runtimeOnly 'org.aspectj:aspectjweaver:1.9.20.1'
+
+
 
 }
 

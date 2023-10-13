@@ -12,6 +12,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Author: associate2coder
+ */
+
 @Slf4j
 public class TtnTrackingCustomDeserializer extends JsonDeserializer<TtnTracking> {
 

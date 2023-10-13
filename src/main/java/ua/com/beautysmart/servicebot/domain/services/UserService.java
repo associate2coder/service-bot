@@ -4,6 +4,10 @@ import ua.com.beautysmart.servicebot.domain.entities.User;
 
 import java.util.List;
 
+/**
+ * Author: associate2coder
+ */
+
 public interface UserService {
 
     User addUser(long chatId, String name, String role);

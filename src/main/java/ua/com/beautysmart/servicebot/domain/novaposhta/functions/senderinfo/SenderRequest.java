@@ -4,6 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Author: associate2coder
+ */
+
 @Getter @Setter
 @NoArgsConstructor
 public class SenderRequest {
