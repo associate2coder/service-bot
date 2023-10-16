@@ -24,4 +24,4 @@ This code is a work-in-progress product. Not to be used in production.
 - request returning of packages refused by customers via functionality of the bot.
 
 ## Contact Information
-- [@LeksUkr](https://t.me/LeksUkr)https://t.me/LeksUkr
+- [@LeksUkr](https://t.me/LeksUkr)
